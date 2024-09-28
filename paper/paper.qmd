@@ -1,0 +1,148 @@
+---
+title: "Analysis of Youth Substance Use Treatment Services in Toronto"
+author: "Xue Feiyang"
+thanks: "Code and data are available at: https://github.com/FrankXUE-github/FrankXue-Youth-Substance-Use-Treatment-Services-in-Toronto"
+date: 26 September 2024
+date-format: long
+format: 
+  pdf: 
+    bibliography: references.bib
+toc: true
+number-sections: true
+execute:
+  echo: false  
+bibliography: "C:/Users/32877/Documents/sta304 paper1/paper/references.bib"
+---
+
+# Introduction
+
+Substance use among youth is a significant public health concern not only in Toronto but globally. Young people who engage in substance use are at an elevated risk of developing long-term physical, psychological, and social consequences. These include the potential for addiction, mental health disorders, and disruptions in their educational, professional, and personal lives. The impact of youth substance use also extends beyond the individual, affecting families, communities, and social services.
+
+To address this issue, Toronto offers a wide array of services aimed at prevention, treatment, and rehabilitation. These services are provided by various agencies and are tailored to the unique needs of youth. Services can range from crisis intervention and counseling to long-term residential treatment and aftercare. This paper aims to explore the availability and distribution of these services, identifying gaps and areas for improvement. By analyzing the distribution of treatment services, the types of services offered, and the geographical spread of agencies, this study will contribute to a more informed understanding of how the city of Toronto supports its youth in overcoming substance use challenges.
+# Data Overview
+
+The dataset used in this analysis provides comprehensive information on agencies offering substance use treatment services for youth across Toronto. This data includes details about the agency names, addresses, and specific neighborhoods where the services are located. In addition to geographic data, the dataset includes crucial information such as eligibility criteria, service descriptions, and contact information (including office phone numbers).
+
+A key aspect of the data is its breadth of services, which ranges from crisis support, counseling, and day treatment programs to more intensive interventions like residential treatment and rehabilitation. Eligibility criteria vary significantly from agency to agency, which highlights the diversity of services targeting different demographics, such as services for youth, men, women, and specific communities. The dataset also contains information about how accessible each service is, which is important for understanding barriers to access that youth may face.
+
+The analysis presented in this paper will focus on understanding the geographical distribution of services across Toronto, identifying patterns in service availability, and examining which neighborhoods are better served than others. The goal is to identify potential service gaps and make recommendations for optimizing resource allocation to ensure that all youth in need can access the support they require. Additionally, the types of services offered and the populations served by these agencies will be explored, giving insight into how different needs are being met throughout the city.
+[@opendatatoronto]
+[@tidyverse]
+[@leaflet]
+[@ggplot2]
+[@tidyverse]
+[@canada2018][@quarto]
+[@rstats]
+[@wordcloud]
+[@toronto_wellbeing]
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Load required libraries
+library(tidyverse)
+library(ggplot2)
+library(wordcloud)
+library(RColorBrewer)
+library(here)
+library(tidygeocoder)
+library(leaflet)
+library(mapview)
+
+# Load the dataset
+data <- read_csv("C:/Users/32877/Documents/sta304 paper1/data/analysis_data/analysis_data.csv")
+```
+\newpage
+# Analysis
+1.  Distribution of Services by Neighborhood To understand the geographical spread of substance use treatment services, we visualize the distribution of agencies by neighborhood.
+```{r fig.width=7, fig.height=5, echo=FALSE}
+# Count the number of services per neighborhood
+neighborhood_count <- data %>% count(NEIGHBOURHOOD)
+
+# Plot the distribution
+ggplot(neighborhood_count, aes(x = reorder(NEIGHBOURHOOD, n), y = n)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Distribution of Services by Neighborhood", x = "Neighborhood", y = "Number of Services")
+```
+
+
+The figure illustrates the distribution of substance use treatment services across various neighborhoods in Toronto, revealing significant disparities in service availability. The x-axis represents the number of services, while the y-axis lists the neighborhoods in descending order of service provision. Notably, Woburn stands out with 137 services, far exceeding any other neighborhood, suggesting a high concentration of facilities or a greater demand for treatment in this area. Other neighborhoods like Annex (95 services) and Wychwood (94 services) also show substantial service availability, indicating strong support infrastructures. Roncesvalles, Church-Yonge Corridor, and Moss Park follow closely, each offering a respectable number of services. These central areas likely benefit from accessibility and population density, which may drive the need for more services. Conversely, neighborhoods such as West Humber-Clairville (1 service) and Mimico (17 services) are conspicuously underserved, raising concerns about unequal access to treatment options across the city. Furthermore, the "NA" category, with 82 services, likely represents services that are either uncategorized by neighborhood or missing data, highlighting a limitation in the dataset. The geographic disparities in service availability may stem from several factors, including population density, socioeconomic conditions, and neighborhood accessibility. Areas with higher poverty rates or homelessness, such as Moss Park, may attract more services due to the higher demand for substance use treatment. However, neighborhoods with fewer services might indicate a gap in provision, suggesting the need for policy intervention to ensure equitable access to treatment across Toronto. The chart underscores the importance of addressing these disparities to ensure all residents, regardless of their location, have access to the support they need. Moreover, the presence of the "NA" category suggests a need for more accurate data collection to ensure a comprehensive understanding of service distribution across the city.
+\newpage
+2. Locations 
+
+![Leaflet Map](map/leaflet_map.png)
+The map visualizes the geographic distribution of substance use treatment services across Toronto. Each blue marker represents a location where services are offered, allowing us to see how these services are dispersed throughout the city. 
+
+From the map, it is clear that there is a significant concentration of services in the downtown core of Toronto. This clustering suggests that urban areas, particularly the central parts of the city, are better served with substance use treatment facilities. This is likely due to higher population density, easier access to public transportation, and the proximity to major healthcare institutions and social services in the downtown area. These factors make the downtown area a logical choice for the placement of many services.
+
+Outside the downtown core, the distribution of services becomes more sparse. There are fewer facilities in the outer regions of the city, particularly in the northern and eastern areas. This disparity could indicate that individuals living in these outlying neighborhoods may face challenges in accessing substance use treatment services, such as longer travel times or limited availability of nearby services. The lack of facilities in these regions highlights potential gaps in service provision, which may require attention from policymakers and service providers to ensure equitable access to treatment across the entire city.
+
+The uneven distribution also raises questions about accessibility for vulnerable populations who may not have the means to travel to the downtown core for treatment. This spatial inequality could exacerbate existing social and health disparities, particularly for those living in less accessible areas. Policymakers may need to consider expanding services to these underserved areas to reduce barriers to access and ensure that all individuals in need of substance use treatment have equal opportunities to receive care.
+
+In summary, the map indicates that while Toronto’s downtown core is well-served by substance use treatment services, the outer regions are not as well-covered, suggesting the need for more evenly distributed services across the city to ensure that all residents have access to the care they need.
+
+\newpage
+3.  Top 10 Agencies by Number of Services Here, we plot the top 10 agencies based on the number of services they offer.
+
+```{r fig.width=7, fig.height=5, echo=FALSE}
+# Count by agency
+agency_count <- data %>% count(AGENCY_NAME) %>% arrange(desc(n))
+
+# Plot the top 10 agencies
+top_agencies <- agency_count %>% head(10)
+ggplot(top_agencies, aes(x = reorder(AGENCY_NAME, n), y = n)) +
+  geom_bar(stat = "identity", fill = "purple") +
+  coord_flip() +
+  labs(title = "Top 10 Agencies by Number of Services", x = "Agency", y = "Number of Services")
+```
+The bar chart illustrates the top 10 agencies providing substance use treatment services in Toronto. Leading the list is the Centre for Addiction and Mental Health, followed closely by St Michael's Hospital, both of which play major roles in addressing addiction and mental health issues in the city. Other key contributors include the Salvation Army, University Health Network, Toronto Western Hospital, and Society Of St Vincent De Paul. Smaller organizations like Bellwood Health Services, Anishnawbe Health Toronto, Alpha House, and Alcoholics Anonymous also make significant contributions. The chart highlights that a few major agencies handle a substantial portion of services, reflecting their capacity and specialization. However, it also suggests a need to potentially distribute services more evenly among various providers to ensure broader access and reduce the burden on key institutions. The diversity of service providers, from hospitals to faith-based and nonprofit organizations, ensures a wide range of needs are addressed across the city.
+
+
+
+\newpage
+4.  Word Cloud of Service Descriptions A word cloud is useful to visualize the most common words in the service descriptions.
+
+```{r fig.width=5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Define stopwords to remove (you can expand this list)
+stopwords <- c("and", "for", "with", "the", "to", "in", "or", "of", "a", "is", "on", "that", "*","--")
+
+# Create word cloud for service descriptions
+service_descriptions <- paste(data$DESCRIPTION_SERVICE, collapse = " ")
+
+# Split words, remove stopwords, and create frequency table
+word_list <- strsplit(service_descriptions, "\\s+")[[1]]
+filtered_words <- word_list[!word_list %in% stopwords]
+word_freq <- sort(table(filtered_words), decreasing = TRUE)
+
+wordcloud(names(word_freq), freq = word_freq, max.words = 100, random.order = FALSE, colors = brewer.pal(8, "Dark2"))
+```
+
+The word cloud above provides an insightful overview of the most frequently mentioned terms in the service descriptions for youth substance use treatment services in Toronto. Here are some key observations:
+
+ **Core Focus Areas**:
+   - The most prominent words include **"treatment," "counselling," "support," "care,"** and **"family."** These terms indicate the main services offered by agencies, suggesting a strong focus on **treatment programs** and **counseling services** aimed at providing care and support to individuals and families affected by substance use.
+   - The term **"management"** also appears frequently, likely referring to **case management** and **addiction management** programs that help individuals with long-term recovery.
+
+ **Family and Community Involvement**:
+   - The presence of words such as **"family," "group," "community,"** and **"social"** highlights the emphasis on involving families and social groups in the treatment and rehabilitation process. This suggests that many of the services provided focus on **family support** and **community-based approaches**.
+
+ **Service Types**:
+   - Words like **"program," "services," "case,"** and **"assessment"** indicate that many agencies offer structured **programs** and **case management services**. These could involve initial **assessments** to determine an individual’s needs and subsequent personalized care plans.
+
+ **Health and Wellbeing**:
+   - Health-related terms such as **"mental," "health," "addiction," "harm," "prevention,"** and **"withdrawal"** are prominent. This suggests that many services are focused on both **mental health support** and **addiction recovery**, including efforts to prevent relapse and manage withdrawal symptoms.
+
+ **Substance-Specific Treatment**:
+   - The appearance of **"substance," "addiction," "abuse,"** and **"harm reduction"** indicates that the services offered target a wide range of substance use issues, including specific programs for **substance abuse treatment** and **harm reduction** strategies.
+
+ **Inclusivity and Specialized Services**:
+   - Words like **"women," "youth," "individual,"** and **"homeless"** point toward the inclusivity of the services. There seem to be specialized programs tailored for different demographics such as **women**, **youth**, and **homeless individuals**, reflecting the diversity of needs within the population served.
+
+
+The word cloud reflects a broad spectrum of services offered by youth substance use treatment agencies in Toronto. The focus on **treatment, counseling, support, and care** underscores the importance of comprehensive, family-centered approaches to recovery. Additionally, the variety of terms related to health, addiction, and community involvement highlights the multifaceted strategies these agencies employ to support individuals in overcoming substance use challenges.
+
+# Conclusion
+In conclusion, while Toronto offers a wide array of substance use treatment services, there are clear disparities in both geographic distribution and service provision. Addressing these gaps through strategic policy planning and resource allocation will be crucial in ensuring that all youth in Toronto have access to the support they need to overcome substance use challenges. This paper contributes to a deeper understanding of the current landscape of substance use treatment services and offers insights that could guide future improvements in service delivery across the city.
+
+# References {-}
+
